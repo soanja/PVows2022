@@ -1,6 +1,7 @@
 import streamlit as st
 import pandas as pd
 import numpy as np
+import matplotlib.pyplot as plt
 import plotly.graph_objects as go
 import plotly.express as px
 
@@ -65,16 +66,17 @@ def app():
         df['acc_at'].sum()
     ]}
 
-	bac_df = pd.DataFrame(bac_sum_data)
-	fig_bac = go.Figure(data=go.Scatterpolar(r=bac_df['Total Admissions'],theta=bac_df['Bac Type'], fill='toself'))
-
-	fig_bac.update_layout(
-	    polar=dict(
-	        radialaxis=dict(
-	            visible=True,
-	            range=[0, max(bac_df['Total Admissions'])]
-	        )
-	    ))
+	
+	fig, ax = plt.subplots(subplot_kw={'polar': True}, figsize=(4, 4))
+	theta = np.linspace(0, 2 * np.pi, len(bac_df), endpoint=False)
+	radii = bac_df['Total Admissions']
+	ax.fill(theta, radii, 'b', alpha=0.2)
+	ax.set_xticks(theta)
+	ax.set_xticklabels(bac_df['Bac Type'])
+	ax.set_yticklabels([])
+	ax.set_ylim(0, max(radii) + 20)
+	plt.title('Total Admissions by Bac Type')
+	st.write(fig)
 
 
 	mentions = ['acc_sansmention', 'acc_ab', 'acc_b', 'acc_tb']
@@ -87,10 +89,17 @@ def app():
 	]}
 	mention_df = pd.DataFrame(mention_sum_data)
 
-	fig_mention = go.Figure()
-	fig_mention.add_trace(go.Scatterpolar(
-    r=mention_df['Total Admissions'],
-    theta=mention_df['Mention'],line=dict(color='red'), fill='toself',fillcolor='rgba(155, 0, 0, 0.3)'))
+	fig, ax = plt.subplots(subplot_kw={'polar': True})
+	theta = np.linspace(0, 2 * np.pi, len(mention_df), endpoint=False)
+	radii = mention_df['Total Admissions']
+	ax.fill(theta, radii, color='red', alpha=0.3)
+	ax.set_xticks(theta)
+	ax.set_xticklabels(mention_df['Mention'])
+	ax.set_yticklabels([])  # Hide radial axis labels
+	ax.set_ylim(0, max(radii) + 20)  # Adjust the radius limit as needed
+	
+	plt.title('Total Admissions by Mention')
+	st.write(fig)
 
 	fig_mention.update_layout(
     polar=dict(
